@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Produtos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Container Principal -->
+    <div class="container mx-auto mt-10 p-4">
+
+        <!-- Título -->
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">
+            Gerenciamento de Produtos
+        </h1>
+
+        <!-- Navegação por Abas -->
+        <div class="mb-8">
+            <ul class="flex border-b">
+                <li class="mr-1">
+                    <a id="aba-produtos" class="bg-white inline-block py-2 px-4 text-blue-500 font-semibold hover:bg-gray-100 cursor-pointer">Produtos</a>
+                </li>
+                <li class="mr-1">
+                    <a id="aba-logs" class="bg-white inline-block py-2 px-4 text-blue-500 font-semibold hover:bg-gray-100 cursor-pointer">Logs</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Seção de Produtos -->
+        <div id="secao-produtos" class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700">Cadastrar Produto</h2>
+            <form id="productForm" class="space-y-4">
+                
+                <!-- Nome do Produto -->
+                <div>
+                    <label for="nomeProduto" class="block text-lg font-medium text-gray-700">Nome do Produto</label>
+                    <input id="nomeProduto" type="text" class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Insira o nome do produto">
+                </div>
+
+                <!-- Descrição -->
+                <div>
+                    <label for="descricaoProduto" class="block text-lg font-medium text-gray-700">Descrição</label>
+                    <textarea id="descricaoProduto" class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Insira a descrição do produto"></textarea>
+                </div>
+
+                <!-- Preço -->
+                <div>
+                    <label for="precoProduto" class="block text-lg font-medium text-gray-700">Preço</label>
+                    <input id="precoProduto" type="number" class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Insira o preço">
+                </div>
+
+                <!-- Estoque -->
+                <div>
+                    <label for="estoqueProduto" class="block text-lg font-medium text-gray-700">Estoque</label>
+                    <input id="estoqueProduto" type="number" class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Insira a quantidade em estoque">
+                </div>
+
+                <!-- Usuário -->
+                <div>
+                    <label for="usuario" class="block text-lg font-medium text-gray-700">Usuário</label>
+                    <input id="usuario" type="text" class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Insira o nome do usuário">
+                </div>
+
+                <!-- Botão de Envio -->
+                <div>
+                    <button type="button" id="btnCriar" class="w-full bg-indigo-500 text-white p-3 rounded-md shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        Cadastrar Produto
+                    </button>
+                </div>
+            </form>
+
+            <!-- Listagem de Produtos -->
+            <div class="bg-white p-6 mt-8 rounded-lg shadow-md">
+                <h2 class="text-2xl font-semibold mb-6 text-gray-700">Produtos Cadastrados</h2>
+                <table class="min-w-full table-auto">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">ID</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Nome</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Descrição</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Preço</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Estoque</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productList">
+                        <!-- Produtos serão listados aqui dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Seção de Logs -->
+        <div id="secao-logs" class="bg-white p-6 rounded-lg shadow-md hidden">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700">Logs de Operações</h2>
+            <table class="min-w-full table-auto">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">ID</th>
+                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Ação</th>
+                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Produto ID</th>
+                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Usuário</th>
+                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Data e Hora</th>
+                    </tr>
+                </thead>
+                <tbody id="logList">
+                    <!-- Logs serão listados aqui dinamicamente -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        let currentEditId = null;
+
+        // Função para mudar abas
+        document.getElementById('aba-produtos').addEventListener('click', function() {
+            document.getElementById('secao-produtos').classList.remove('hidden');
+            document.getElementById('secao-logs').classList.add('hidden');
+        });
+
+        document.getElementById('aba-logs').addEventListener('click', function() {
+            document.getElementById('secao-produtos').classList.add('hidden');
+            document.getElementById('secao-logs').classList.remove('hidden');
+            listarLogs(); // Carregar logs ao clicar na aba
+        });
+
+        // Funções para interagir com os produtos (usar AJAX/fetch para chamadas)
+        document.getElementById('btnCriar').addEventListener('click', function() {
+            const nomeProduto = document.getElementById('nomeProduto').value;
+            const descricaoProduto = document.getElementById('descricaoProduto').value;
+            const precoProduto = document.getElementById('precoProduto').value;
+            const estoqueProduto = document.getElementById('estoqueProduto').value;
+            const usuario = document.getElementById('usuario').value;
+
+            const produto = {
+                nome: nomeProduto,
+                descricao: descricaoProduto,
+                preco: parseFloat(precoProduto),
+                estoque: parseInt(estoqueProduto),
+                userInsert: usuario
+            };
+
+            const method = currentEditId ? 'PUT' : 'POST';
+            const url = currentEditId 
+                ? `http://localhost/gerenciamento-produtos/produtos.php?id=${currentEditId}` 
+                : 'http://localhost/gerenciamento-produtos/produtos.php';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(produto)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === (currentEditId ? 'Produto atualizado com sucesso' : 'Produto criado com sucesso')) {
+                    alert(currentEditId ? 'Produto atualizado!' : 'Produto cadastrado!');
+                    listarProdutos(); // Atualizar lista de produtos
+                    resetForm(); // Resetar o formulário
+                } else {
+                    alert('Erro ao cadastrar/atualizar produto');
+                }
+            })
+            .catch(error => console.error('Erro:', error));
+        });
+
+        // Função para listar produtos
+        function listarProdutos() {
+            fetch('http://localhost/gerenciamento-produtos/produtos.php')
+            .then(response => response.json())
+            .then(produtos => {
+                const productList = document.getElementById('productList');
+                productList.innerHTML = ''; // Limpar lista
+                produtos.forEach(produto => {
+                    const row = `
+                        <tr>
+                            <td class="px-4 py-2">${produto.id}</td>
+                            <td class="px-4 py-2">${produto.nome}</td>
+                            <td class="px-4 py-2">${produto.descricao}</td>
+                            <td class="px-4 py-2">${produto.preco}</td>
+                            <td class="px-4 py-2">${produto.estoque}</td>
+                            <td class="px-4 py-2">
+                                <button class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 editar">Editar</button>
+                                <button class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 excluir">Excluir</button>
+                            </td>
+                        </tr>`;
+                    productList.insertAdjacentHTML('beforeend', row);
+                });
+
+                // Adicionar eventos de edição e exclusão
+                addEditAndDeleteEvents();
+            })
+            .catch(error => console.error('Erro:', error));
+        }
+
+        // Função para adicionar eventos de editar e excluir
+        function addEditAndDeleteEvents() {
+            const editarButtons = document.querySelectorAll('.editar');
+            const excluirButtons = document.querySelectorAll('.excluir');
+
+            editarButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const linha = this.closest('tr');
+                    const id = linha.cells[0].innerText; // ID do produto
+                    const nome = linha.cells[1].innerText; // Nome do produto
+                    const descricao = linha.cells[2].innerText; // Descrição do produto
+                    const preco = linha.cells[3].innerText; // Preço do produto
+                    const estoque = linha.cells[4].innerText; // Estoque do produto
+
+                    // Preencher o formulário com os dados do produto
+                    document.getElementById('nomeProduto').value = nome;
+                    document.getElementById('descricaoProduto').value = descricao;
+                    document.getElementById('precoProduto').value = preco;
+                    document.getElementById('estoqueProduto').value = estoque;
+                    document.getElementById('usuario').value = "admin"; // ou outro valor se necessário
+
+                    currentEditId = id; // Armazenar ID do produto em edição
+                    
+                    // Mudar o texto do botão
+                    document.getElementById('btnCriar').textContent = 'Atualizar Produto';
+                });
+            });
+
+            excluirButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const linha = this.closest('tr');
+                    const id = linha.cells[0].innerText; // ID do produto
+
+                    // Chamada para excluir o produto
+                    fetch(`http://localhost/gerenciamento-produtos/produtos.php?id=${id}`, {
+                        method: 'DELETE'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message === 'Produto excluído com sucesso') {
+                            alert('Produto excluído!');
+                            listarProdutos(); // Atualizar lista de produtos
+                        } else {
+                            alert('Erro ao excluir produto');
+                        }
+                    })
+                    .catch(error => console.error('Erro:', error));
+                });
+            });
+        }
+
+        // Resetar o formulário
+        function resetForm() {
+            document.getElementById('productForm').reset();
+            currentEditId = null;
+            document.getElementById('btnCriar').textContent = 'Cadastrar Produto'; // Restaurar texto do botão
+        }
+
+        // Função para listar logs
+        function listarLogs() {
+            fetch('http://localhost/gerenciamento-produtos/logs.php')
+            .then(response => response.json())
+            .then(logs => {
+                const logList = document.getElementById('logList');
+                logList.innerHTML = ''; // Limpar lista
+                logs.forEach(log => {
+                    const row = `
+                        <tr>
+                            <td class="px-4 py-2">${log.id}</td>
+                            <td class="px-4 py-2">${log.acao}</td>
+                            <td class="px-4 py-2">${log.produto_id}</td>
+                            <td class="px-4 py-2">${log.userInsert}</td>
+                            <td class="px-4 py-2">${log.data_hora}</td>
+                        </tr>`;
+                    logList.insertAdjacentHTML('beforeend', row);
+                });
+            })
+            .catch(error => console.error('Erro:', error));
+        }
+
+        // Carregar lista de produtos ao iniciar
+        listarProdutos();
+    </script>
+
+</body>
+</html>
